@@ -29,7 +29,7 @@ aegis/
 
 I followed a layered approach where each layer only knows about the layer below it. The domain layer has zero dependencies, services orchestrate business logic, and transport handles HTTP/gRPC specifics. This keeps things testable and makes it easy to swap out implementations (different database, different transport, etc).
 
-Repository interfaces are in `storage/repository.go` with PostgreSQL implementations in `storage/postgres/`. This isn't over-engineering—it genuinely helps when writing tests and leaves the door open for other databases.
+Repository interfaces are in `storage/repository.go` with PostgreSQL implementations in `storage/postgres/`. This isn't over-engineering, it genuinely helps when writing tests and leaves the door open for other databases.
 
 ## Getting Started
 
