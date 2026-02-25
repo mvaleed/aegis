@@ -82,30 +82,23 @@ func (s *Server) setupMiddleware() {
 }
 
 func (s *Server) setupRoutes() {
-	// Health check
 	s.router.Get("/health", s.handleHealth)
 
-	// API v1
 	s.router.Route("/api/v1", func(r chi.Router) {
-		// Public routes (no auth required)
 		r.Post("/auth/register", s.handleRegister)
 		r.Post("/auth/login", s.handleLogin)
 		r.Post("/auth/refresh", s.handleRefreshToken)
 
-		// Protected routes
 		r.Group(func(r chi.Router) {
 			r.Use(s.authMiddleware)
 
-			// Auth
 			r.Post("/auth/logout", s.handleLogout)
 			r.Post("/auth/logout-all", s.handleLogoutAll)
 
-			// Users
 			r.Get("/users/me", s.handleGetCurrentUser)
 			r.Put("/users/me", s.handleUpdateCurrentUser)
 			r.Put("/users/me/password", s.handleChangePassword)
 
-			// Admin routes
 			r.Route("/users", func(r chi.Router) {
 				r.Use(s.requirePermission("users", "read"))
 				r.Get("/", s.handleListUsers)
@@ -124,14 +117,12 @@ func (s *Server) setupRoutes() {
 				})
 			})
 
-			// User role assignment (admin only)
 			r.Group(func(r chi.Router) {
 				r.Use(s.requirePermission("roles", "assign"))
 				r.Post("/users/{id}/roles", s.handleAssignRoleToUser)
 				r.Delete("/users/{id}/roles/{roleId}", s.handleRemoveRoleFromUser)
 			})
 
-			// Roles (admin only)
 			r.Route("/roles", func(r chi.Router) {
 				r.Use(s.requirePermission("roles", "read"))
 				r.Get("/", s.handleListRoles)
@@ -151,7 +142,6 @@ func (s *Server) setupRoutes() {
 				})
 			})
 
-			// Permissions (admin only)
 			r.Route("/permissions", func(r chi.Router) {
 				r.Use(s.requirePermission("permissions", "read"))
 				r.Get("/", s.handleListPermissions)

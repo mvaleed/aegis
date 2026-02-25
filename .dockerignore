@@ -1,0 +1,56 @@
+# =============================================================================
+# .dockerignore — Exclude files from Docker build context
+# =============================================================================
+
+# Version control
+.git
+.gitignore
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker files (avoid recursive builds)
+Dockerfile
+docker-compose.yaml
+docker-compose*.yaml
+.dockerignore
+
+# Kubernetes and deployment manifests
+deploy/
+k8s/
+skaffold.yaml
+
+# Documentation
+README.md
+LICENSE
+docs/
+
+# Development tools and configs
+Makefile
+buf.yaml
+buf.gen.yaml
+sqlc.yaml
+.golangci.yml
+.air.toml
+
+# Build artifacts
+bin/
+tmp/
+
+# Test files (not needed in production image)
+**/*_test.go
+**/testdata/
+
+# Environment and secret files
+.env
+.env.*
+*.env
+deploy/overlays/*/secrets.env

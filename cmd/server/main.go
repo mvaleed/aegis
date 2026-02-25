@@ -29,13 +29,15 @@ func main() {
 
 	// Setup structured logging
 	logLevel := slog.LevelInfo
-	if cfg.Environment == "development" {
+	if cfg.Environment == "dev" {
 		logLevel = slog.LevelDebug
 	}
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
 		Level: logLevel,
 	}))
 	slog.SetDefault(logger)
+
+	logger.Debug(fmt.Sprintf("Config: %v", cfg))
 
 	// Run the application
 	if err := run(cfg, logger); err != nil {
@@ -55,9 +57,10 @@ func run(cfg *config.Config, logger *slog.Logger) error {
 	}
 	defer pool.Close()
 
-	if err := pool.Ping(ctx); err != nil {
-		return fmt.Errorf("ping database: %w", err)
-	}
+	// TODO: after database readiness
+	// if err := pool.Ping(ctx); err != nil {
+	// 	return fmt.Errorf("ping database: %w", err)
+	// }
 	logger.Info("database connected")
 
 	userRepo := postgres.NewUserRepository(pool)

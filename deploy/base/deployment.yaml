@@ -1,0 +1,36 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aegis-service
+  labels:
+    app: aegis-service-deployment
+    part-of: mvaleed-platform
+
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: aegis-service
+  template:
+    metadata:
+      name: aegis-service
+      labels:
+        app: aegis-service
+    spec:
+      containers:
+        - name: aegis-service
+          image: aegis-service:latest
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: grpc
+              containerPort: 9090
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: aegis-service-config
+            - secretRef:
+                name: aegis-service-secrets
+# TODO: Health checks, resource limits, security

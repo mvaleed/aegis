@@ -1,0 +1,23 @@
+# Creates replica sets + pods
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:
+  labels:
+
+spec:
+  template:
+    metadata:
+      name:
+      labels:
+
+    spec:
+      containers:
+        - name: mycontainer
+          image: nginx
+
+  replicas: 4
+  selector:
+    matchLabels:
+      app: myapp

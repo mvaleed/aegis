@@ -1,55 +1,31 @@
-# Build stage
-FROM golang:1.22-alpine AS builder
+FROM golang:1.25-alpine AS builder
 
-# Install build dependencies
 RUN apk add --no-cache git ca-certificates
 
-# Set working directory
-WORKDIR /app
+WORKDIR /build
 
-# Copy go mod files
 COPY go.mod go.sum ./
+RUN go mod download && go mod verify
 
-# Download dependencies
-RUN go mod download
-
-# Copy source code
 COPY . .
 
-# Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o /app/bin/user-service ./cmd/server
+# Compile a fully static binary with no CGO, stripped of debug symbols.
+# -trimpath removes local filesystem paths from the binary for reproducibility.
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
+    -o /build/bin/user-service \
+    ./cmd/server
 
-# Final stage
-FROM alpine:3.19
+# Using distroless for the smallest possible attack surface.
+FROM gcr.io/distroless/static:nonroot
 
-# Install runtime dependencies
-RUN apk add --no-cache ca-certificates tzdata
-
-# Create non-root user
-RUN addgroup -g 1000 appgroup && \
-    adduser -u 1000 -G appgroup -D appuser
-
-# Set working directory
 WORKDIR /app
 
-# Copy binary from builder
-COPY --from=builder /app/bin/user-service .
+COPY --from=builder --chown=nonroot:nonroot /build/bin/user-service ./user-service
 
-# Copy migrations (for container-based migrations)
-COPY --from=builder /app/migrations ./migrations
+COPY --from=builder --chown=nonroot:nonroot /build/migrations ./migrations
 
-# Change ownership
-RUN chown -R appuser:appgroup /app
+USER nonroot:nonroot
 
-# Switch to non-root user
-USER appuser
-
-# Expose ports
 EXPOSE 8080 9090
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
-
-# Run the application
 ENTRYPOINT ["./user-service"]

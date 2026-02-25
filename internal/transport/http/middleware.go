@@ -34,7 +34,6 @@ func (c *userClaims) hasPermission(resource, action string) bool {
 // authMiddleware validates JWT tokens and sets user claims in context.
 func (s *Server) authMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Extract token from Authorization header
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
 			s.writeJSON(w, http.StatusUnauthorized, errorResponse{
@@ -56,7 +55,6 @@ func (s *Server) authMiddleware(next http.Handler) http.Handler {
 
 		tokenString := parts[1]
 
-		// Validate token
 		claims, err := s.authService.ValidateToken(r.Context(), tokenString)
 		if err != nil {
 			s.writeJSON(w, http.StatusUnauthorized, errorResponse{
@@ -66,7 +64,6 @@ func (s *Server) authMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		// Set claims in context
 		userClaims := &userClaims{
 			UserID:      claims.UserID,
 			Email:       claims.Email,
@@ -111,8 +108,8 @@ func getClientIP(r *http.Request) string {
 	// Try X-Forwarded-For first (set by proxies/load balancers)
 	if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
 		// Get the first IP (client)
-		if idx := strings.Index(xff, ","); idx != -1 {
-			return strings.TrimSpace(xff[:idx])
+		if before, _, ok := strings.Cut(xff, ","); ok {
+			return strings.TrimSpace(before)
 		}
 		return strings.TrimSpace(xff)
 	}

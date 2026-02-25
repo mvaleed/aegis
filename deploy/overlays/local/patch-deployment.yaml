@@ -1,0 +1,20 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aegis-service
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+        - name: aegis-service
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              memory: 128Mi
+          env:
+            - name: GOMAXPROCS
+              value: "1"

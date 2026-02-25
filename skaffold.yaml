@@ -1,0 +1,16 @@
+---
+apiVersion: skaffold/v4beta6
+kind: Config
+metadata:
+  name: aegis-service
+build:
+  local:
+    push: false
+  artifacts:
+    - image: aegis-service
+      docker:
+        dockerfile: Dockerfile
+manifests:
+  kustomize:
+    paths:
+      - deploy/overlays/local

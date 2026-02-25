@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: userservice
+
+spec:
+  type: ClusterIP # Or NodePort | LoadBalancer | Headless
+  ports:
+    - targetPort: 8000 # app's port (what port is service/app is using?)
+      port: 8000
+
+  selector:
+    matchLabels:
+      app: userservice
